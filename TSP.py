@@ -1,69 +1,69 @@
-import random, numpy, math, copy, matplotlib.pyplot as plt
+import random
+import numpy as np
+from matplotlib import pyplot as plt
 
-noc = int(input("Eneter a valid number of cities:"))
+def get_distance(city1, city2):
+  return np.sqrt(((city1[0] - city2[0])**2) + ((city1[1] - city2[1])**2))
 
-random.seed(123)
-cities = [random.sample(range(100), 2) for x in range(noc)]
+def solve_tsp(n):
+  # Generate random cities
+  cities = []
+  for _ in range(n):
+    city = np.random.randint(100, size=2)
+    cities.append(city)
 
-tour = random.sample(range(noc), noc)
+  # Initialize tour
+  tour = np.arange(n)
+  random.shuffle(tour)
 
-for temperature in numpy.logspace(0, 5, num=100000)[::-1]:
-    [i, j] = sorted(random.sample(range(noc), 2))
-    newTour = (
-        tour[:i] + tour[j : j + 1] + tour[i + 1 : j] + tour[i : i + 1] + tour[j + 1 :]
-    )
-    if (
-        math.exp(
-            (
-                sum(
-                    [
-                        math.sqrt(
-                            sum(
-                                [
-                                    (
-                                        cities[tour[(k + 1) % noc]][d]
-                                        - cities[tour[k % noc]][d]
-                                    )
-                                    ** 2
-                                    for d in [0, 1]
-                                ]
-                            )
-                        )
-                        for k in [j, j - 1, i, i - 1]
-                    ]
-                )
-                - sum(
-                    [
-                        math.sqrt(
-                            sum(
-                                [
-                                    (
-                                        cities[newTour[(k + 1) % noc]][d]
-                                        - cities[newTour[k % noc]][d]
-                                    )
-                                    ** 2
-                                    for d in [0, 1]
-                                ]
-                            )
-                        )
-                        for k in [j, j - 1, i, i - 1]
-                    ]
-                )
-            )
-            / temperature
-        )
-        > random.random()
-    ):
-        tour = copy.copy(newTour)
+  # Annealing loop
+  temperature = 1
+  while temperature > 0.001:
+    # Select two cities
+    i = np.random.choice(n)
+    j = np.random.choice(n)
 
-print([[cities[tour[i % noc]][0], cities[tour[i % noc]][1]] for i in range(noc + 1)])
+    # Swap the cities
+    new_tour = np.copy(tour)
+    new_tour[i:i+2] = tour[j:j+2][::-1]
 
-plt.plot(
-    [cities[tour[i % noc]][0] for i in range(noc + 1)],
-    [cities[tour[i % noc]][1] for i in range(noc + 1)],
-    "xb-",
-)
-plt.show()
+    # Calculate energy difference
+    energy_diff = get_total_distance(tour) - get_total_distance(new_tour)
 
+    # Accept or reject the new solution
+    if energy_diff < 0 or np.random.rand() < np.exp(-energy_diff / temperature):
+      tour = np.copy(new_tour)
 
-# This project was coded and designed by Mohammad Hosein Alikhani
+    # Reduce temperature
+    temperature *= 0.9999
+
+  return tour
+
+def get_total_distance(tour):
+  total_distance = 0
+  for i in range(len(tour)-1):
+    city1 = cities[tour[i]]
+    city2 = cities[tour[i+1]]
+    distance = get_distance(city1, city2)
+    total_distance += distance
+
+  return total_distance
+
+def plot_tour(tour, cities):
+  x_coords = [cities[i][0] for i in tour]
+  y_coords = [cities[i][1] for i in tour]
+
+  plt.plot(x_coords, y_coords, "xb-")
+  plt.show()
+
+# User input
+n = int(input("Enter the number of cities: "))
+
+# Solve TSP
+tour = solve_tsp(n)
+
+# Print tour
+print(tour)
+
+# Plot tour
+plot_tour(tour, cities)
