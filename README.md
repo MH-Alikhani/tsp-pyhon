@@ -1,43 +1,45 @@
-<h1>Traveling Salesman Problem (TSP) with Simulated Annealing</h1>
+# Traveling Salesman Problem Hybrid Solver
 
-<p>This project solves the Traveling Salesman Problem (TSP) using simulated annealing, a probabilistic technique for approximating the global minimum of a given function.</p>
+## Overview
+This repository contains an implementation of a **hybrid metaheuristic solver** for the Traveling Salesman Problem (TSP). The algorithm integrates **Genetic Algorithms (GA)** with **Simulated Annealing (SA)** to effectively explore and exploit solutions, providing a balance between global and local search strategies. The solver aims to minimize the total distance traveled by visiting a set of cities exactly once and returning to the starting point.
 
-<h2>Installation</h2>
+The approach leverages GA operators like **selection**, **ordered crossover (OX)**, and **mutation (2-opt swap)** combined with **Simulated Annealing (SA)** for local refinement of solutions.
 
-<p>To run this code, you will need Python 3 and the following libraries:</p>
-<ul>
-    <li><code>random</code></li>
-    <li><code>numpy</code></li>
-    <li><code>matplotlib</code></li>
-</ul>
+## Key Features
+- **Hybrid Algorithm**: Combines GA and SA to ensure both exploration and exploitation in solution search.
+- **Efficient Distance Calculation**: Utilizes `numba` for JIT-compiled distance calculations and mutation operations, enhancing performance.
+- **Customizable Parameters**: Control population size, number of generations, and cooling rates in SA.
+- **Visualization**: Built-in support for visualizing the final solution (tour) using `Matplotlib`.
 
-<p>You can install these libraries using pip:</p>
+## How It Works
+1. **Initialization**: The algorithm starts by initializing a population of random tours (permutations of city indices). Each tour represents a potential solution.
+2. **Fitness Evaluation**: The total distance of each tour is calculated using the Euclidean distance between cities.
+3. **Selection**: A tournament selection method is used to select parents for crossover based on the shortest tour distances.
+4. **Crossover**: An Ordered Crossover (OX) method is employed to combine two parent tours into offspring while preserving the city sequence as much as possible.
+5. **Mutation**: A 2-opt swap mutation is applied to further explore the solution space by reversing subsections of the tour.
+6. **Simulated Annealing**: Each mutated solution undergoes a Simulated Annealing process, refining the solution locally and ensuring it avoids local minima by accepting worse solutions with a probability that decreases as the temperature lowers.
+7. **Evolution**: The population evolves over several generations, combining the strengths of crossover, mutation, and simulated annealing to search for better tours iteratively.
+8. **Visualization**: Once the best solution is found, the tour is visualized using `matplotlib`, showing the path between cities.
 
-<pre>pip install random numpy matplotlib</pre>
+## Code Structure
+- **TSPSolverHybrid**: Main class that encapsulates the hybrid GA + SA logic.
+  - `__init__`: Initializes the cities, population, and parameters.
+  - `initialize_population`: Generates a random initial population of tours.
+  - `get_distance`: Computes the Euclidean distance between two cities.
+  - `get_total_distance`: Calculates the total distance of a given tour.
+  - `selection`: Performs tournament selection to choose parents.
+  - `ordered_crossover`: Executes ordered crossover on two parents.
+  - `mutate`: Applies 2-opt mutation to a tour.
+  - `simulated_annealing`: Refines the tour using simulated annealing.
+  - `evolve_population`: Evolves the population using crossover, mutation, and simulated annealing.
+  - `solve`: Main loop to run the hybrid algorithm for a specified number of generations.
+  - `plot_tour`: Visualizes the tour on a 2D plot.
+  - `generate_cities`: Generates a random set of cities with (x, y) coordinates.
+  - `main`: Entry point for running the solver, prompting the user to input the number of cities and executing the algorithm.
 
-<h2>Usage</h2>
-
-<p>To run the code, follow these steps:</p>
-
-<ol>
-    <li>Open a terminal window and navigate to the directory containing the <code>TSP.py</code> file.</li>
-    <li>Run the following command:</li>
-
-<pre>python TSP.py</pre>
-
-<p>This will prompt you to enter the number of cities in the TSP problem. Enter the number and press enter. The code will then solve the TSP and plot the optimal tour.</p>
-</ol>
-
-<h2>Code Refactored</h2>
-
-<p>The code has been refactored to improve its readability and maintainability. This includes:</p>
-<ul>
-    <li>Using functions to modularize the code</li>
-    <li>Improving variable naming</li>
-    <li>Replacing <code>sum()</code> with a nested loop</li>
-    <li>Simplifying the logic for accepting or rejecting a new solution</li>
-</ul>
-
-<h2>Performance</h2>
-
-<p>The refactored code should have similar performance to the original code. The annealing loop will typically terminate after a few thousand iterations. The optimal tour will be displayed on the screen.</p>
+## Dependencies
+- Python 3.8+
+- **NumPy**: Efficient numerical computations.
+- **Matplotlib**: Visualization of results.
+- **Numba**: JIT compilation for performance improvements.
+- **Logging**: Integrated logging for tracking progress and results.
